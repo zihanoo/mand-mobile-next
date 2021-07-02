@@ -1,39 +1,72 @@
-<template>
-  <div
-    class="md-agree"
-    :class="[disabled ? 'disabled' : '']"
-  >
-    <div
-      class="md-agree-icon"
-      :class="[modelValue ? 'checked' : '']"
-      @click="onChange($event)"
-    >
-      <md-icon :name="currentIcon" :size="size"></md-icon>
-    </div>
-    <div class="md-agree-content">
-      <slot></slot>
-    </div>
-  </div>
-</template>
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { h, defineComponent } from 'vue'
 import MdIcon from 'mand-mobile/icon'
+import type { PropType } from 'vue'
 import {
-  agreeProps as props,
-  emits,
-  useAgree,
-} from './use-agree'
+  UPDATE_MODEL_EVENT,
+  CHANGE_EVENT,
+} from 'mand-mobile/utils'
 
 export default defineComponent({
   name: 'MdAgree',
-  components: {
-    MdIcon,
+  props: {
+    modelValue: {
+      type: Boolean,
+      default: false,
+    },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
+    size: {
+      type: String as PropType<'xs' | 'sm' | 'md' | 'lg'>,
+      default: 'md',
+    },
   },
-  props,
-  emits,
-  setup: (props, context) => ({
-    ...useAgree(props, context),
-  }),
+  emits: [UPDATE_MODEL_EVENT, CHANGE_EVENT],
+  setup(props, { emit, slots }) {
+    const onChange = (event: Event) => {
+      if (props.disabled) return
+      emit(UPDATE_MODEL_EVENT, !props.modelValue)
+      emit(CHANGE_EVENT, event)
+    }
+
+    const content = () =>
+      h(
+        'div',
+        {
+          class: {
+            'md-agree': true,
+            disabled: props.disabled,
+          },
+        },
+        [
+          h(
+            'div',
+            {
+              class: {
+                'md-agree-icon': true,
+                checked: props.modelValue,
+              },
+              onClick: (event: Event) => onChange(event),
+            },
+            h(MdIcon, {
+              name: props.modelValue ? 'checked' : 'check',
+              size: props.size,
+            })
+          ),
+          h(
+            'div',
+            {
+              class: 'md-agree-content',
+            },
+            slots.default?.() || []
+          ),
+        ]
+      )
+
+    return () => content()
+  },
 })
 </script>
 

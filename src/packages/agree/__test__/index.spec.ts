@@ -45,15 +45,6 @@ describe('Agree.vue', () => {
     )
   })
 
-  test('component should be work', () => {
-    const wrapper: Component = mount(Agree, {
-      props: {
-        modelValue: true,
-      },
-    })
-    expect(wrapper.vm.currentIcon).toBe('checked')
-  })
-
   test('install', () => {
     expect(
       require('vue').createApp(Agree).use(Agree)
